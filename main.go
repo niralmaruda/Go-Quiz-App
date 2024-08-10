@@ -19,7 +19,7 @@ func printQuestions(quiz models.Quiz) {
 	quiz.PrintQuestion()
 	quiz.PrintOptions()
 
-	input := quiz.ReadInput()
+	// input := quiz.ReadInput()
 
-	quiz.CheckAnswer(input)
+	// quiz.CheckAnswer(input)
 }
