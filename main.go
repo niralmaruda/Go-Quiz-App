@@ -20,6 +20,8 @@ func printQuestions(quiz models.Quiz) {
 	quiz.PrintOptions()
 
 	// input := quiz.ReadInput()
+	input := quiz.Exec()
+	fmt.Println("Enter your answer: " + input)
 
-	// quiz.CheckAnswer(input)
+	quiz.CheckAnswer(input)
 }
