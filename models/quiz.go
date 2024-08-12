@@ -3,7 +3,6 @@ package models
 import (
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/eiannone/keyboard"
 )
@@ -107,14 +106,8 @@ func (q *Quiz) ReadInput() string {
 }
 
 func (q *Quiz) Exec() string {
-	var keys = map[keyboard.Key]Executable{
-		keyboard.KeyEnter:      KeyEnter{},
-		keyboard.KeyArrowUp:    KeyArrowUp{},
-		keyboard.KeyArrowDown:  KeyArrowDown{},
-		keyboard.KeyArrowLeft:  KeyArrowLeft{},
-		keyboard.KeyArrowRight: KeyArrowRight{},
-	}
 
+	handleKey := NewHandleKey()
 	err := keyboard.Open()
 	if err != nil {
 		log.Fatal(err)
@@ -123,45 +116,8 @@ func (q *Quiz) Exec() string {
 
 	_, key, _ := keyboard.GetKey()
 	selectedOption := 1
-	value := keys[key].Execute(&selectedOption)
+	value := handleKey.Execute(key, &selectedOption)
 	fmt.Println(value)
 	return value
 
-}
-
-type Executable interface {
-	Execute(selectedOption *int) string
-}
-
-type KeyEnter struct{}
-type KeyArrowUp struct{}
-type KeyArrowDown struct{}
-type KeyArrowLeft struct{}
-type KeyArrowRight struct{}
-
-func (k KeyEnter) Execute(selectedOption *int) string {
-	return strconv.Itoa(*selectedOption)
-}
-
-func (k KeyArrowUp) Execute(selectedOption *int) string {
-	if *selectedOption > 1 {
-		*selectedOption -= 1
-	}
-	return strconv.Itoa(*selectedOption)
-}
-
-func (k KeyArrowDown) Execute(selectedOption *int) string {
-	if *selectedOption < 4 {
-		*selectedOption += 1
-	}
-	return strconv.Itoa(*selectedOption)
-}
-
-func (k KeyArrowLeft) Execute(selectedOption *int) string {
-	*selectedOption = 0
-	return strconv.Itoa(*selectedOption)
-}
-
-func (k KeyArrowRight) Execute(selectedOption *int) string {
-	return strconv.Itoa(*selectedOption)
 }
