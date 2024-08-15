@@ -16,12 +16,7 @@ func main() {
 }
 
 func printQuestions(quiz models.Quiz) {
-	quiz.PrintQuestion()
-	quiz.PrintOptions()
 
-	// input := quiz.ReadInput()
-	input := quiz.Exec()
-	fmt.Println("Enter your answer: " + input)
+	quiz.ReadInput()
 
-	quiz.CheckAnswer(input)
 }

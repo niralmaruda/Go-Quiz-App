@@ -3,6 +3,8 @@ package models
 import (
 	"fmt"
 	"log"
+	"os"
+	"os/exec"
 
 	"github.com/eiannone/keyboard"
 )
@@ -30,7 +32,18 @@ func Init() []Quiz {
 			{option: "Excellent", correct: false},
 		},
 		isMultiSelected: false,
-	}}
+	},
+		{
+			question: "What is the closest planet to Earth?",
+			options: []Option{
+				{option: "Venus", correct: false},
+				{option: "Mars", correct: true},
+				{option: "Jupiter", correct: false},
+				{option: "Saturn", correct: false},
+			},
+			isMultiSelected: false,
+		},
+	}
 
 	return quiz
 }
@@ -39,9 +52,13 @@ func (q *Quiz) PrintQuestion() {
 	fmt.Println(q.question)
 }
 
-func (q *Quiz) PrintOptions() {
+func (q *Quiz) PrintOptions(selectedOption *int) {
 	for i, option := range q.options {
-		fmt.Printf("%d. %s\n", i+1, option.option)
+		if selectedOption != nil && *selectedOption == i+1 {
+			fmt.Printf("> %d. %s\n", i+1, option.option)
+		} else {
+			fmt.Printf("%d. %s\n", i+1, option.option)
+		}
 	}
 }
 
@@ -67,46 +84,6 @@ func (q *Quiz) CheckAnswer(input string) {
 }
 
 func (q *Quiz) ReadInput() string {
-	err := keyboard.Open()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer keyboard.Close()
-
-	selectedOption := 0
-	var userInput string
-
-	for {
-		ch, key, err := keyboard.GetKey()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		switch key {
-		case keyboard.KeyArrowUp:
-			if selectedOption > 0 {
-				selectedOption--
-			}
-		case keyboard.KeyArrowDown:
-			if selectedOption < len(q.options)-1 {
-				selectedOption++
-			}
-		case keyboard.KeyArrowRight:
-			userInput = fmt.Sprint(selectedOption + 1)
-		case keyboard.KeyArrowLeft:
-			userInput = "0"
-		case keyboard.KeyEnter:
-			return userInput
-		}
-
-		if ch == 'q' || ch == 'Q' {
-			return "0"
-		}
-	}
-}
-
-func (q *Quiz) Exec() string {
-
 	handleKey := NewHandleKey()
 	err := keyboard.Open()
 	if err != nil {
@@ -114,10 +91,24 @@ func (q *Quiz) Exec() string {
 	}
 	defer keyboard.Close()
 
-	_, key, _ := keyboard.GetKey()
 	selectedOption := 1
-	value := handleKey.Execute(key, &selectedOption)
-	fmt.Println(value)
-	return value
 
+	for {
+		_, key, _ := keyboard.GetKey()
+		q.ClearTerminal()
+		q.PrintQuestion()
+		q.PrintOptions(&selectedOption)
+		input := handleKey.Execute(key, &selectedOption)
+		fmt.Println("Enter your answer: " + input)
+		if key == keyboard.KeyEnter {
+			q.CheckAnswer(input)
+			return input
+		}
+	}
+}
+
+func (q *Quiz) ClearTerminal() {
+	cmd := exec.Command("cmd", "/c", "cls")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
